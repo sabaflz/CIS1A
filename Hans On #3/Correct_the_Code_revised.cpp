@@ -1,5 +1,4 @@
 /*
-  Saba Flz
   Hands-On #3 - Correct the Code
 */
 
@@ -28,7 +27,7 @@ int main()
     cout << "Area of Circle: " << area << endl;
     
     // Signature
-    cout << "\n\nSaba Flz\n\n";
+    cout << "\n\nSaba\n\n";
     
     system("pause");    // Since I use Xcode, this statement is not going to work for me
                         // hence the "sh: pause: command not found" in the output
@@ -39,9 +38,6 @@ int main()
 /*
  Enter the radius: 10
  Area of Circle: 314.16
-
-
- Saba Flz
 
  sh: pause: command not found
  Program ended with exit code: 0
