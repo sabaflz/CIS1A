@@ -1,5 +1,4 @@
 /*
-    Saba Flz
     Lab 2 – Swag for De Anza’s 2023 Welcome Day
 */
 
@@ -81,10 +80,6 @@ int main()
     cout << setw(12) << "Tax" << setw(20) << tax << endl;                         // Print Tax
     cout << setw(12) << "Total" << setw(20) << total << endl;                     // Print Total
     
-    
-    // Signature
-    cout << "\nProgrammed by Saba Feilizadeh" << endl << endl;
-    
     return 0;
 }
 
@@ -103,8 +98,6 @@ int main()
      Subtotal            12779.95
           Tax             1166.81
         Total            13946.76
-
- Programmed by Saba Flz
 
  Program ended with exit code: 0
 */
