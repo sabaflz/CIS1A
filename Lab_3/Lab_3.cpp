@@ -1,6 +1,4 @@
 /*
-    Saba Flz
-    saba@gmail.com
     Lab 3 - ETS CIS Refresh 2022
     Date 10.25.2023
 */
@@ -112,11 +110,7 @@ int main()
     cout << setw(31) << "Tax" << setw(20) << tax << endl;                                              // Print Tax
     cout << setw(31) << "Total" << setw(20) << total << endl;                                          // Print Total
     cout << " -----------------------------------------------------------------------" << endl;
-    
-    // Signature
-    cout << "Programmed by: Saba Flz" << endl;
     // Print Lab info
-    cout << "Email:  saba@gmail.com" << endl;
     cout << "Lab 3:  ETS CIS Refresh 2022" << endl;
     cout << "Date:   10.25.2023" << endl << endl;
     
@@ -143,8 +137,6 @@ int main()
                              Tax            40631.36
                            Total           485662.68
   -----------------------------------------------------------------------
- Programmed by: Saba Flz
- Email:  saba@gmail.com
  Lab 3:  ETS CIS Refresh 2022
  Date:   10.25.2023
 
