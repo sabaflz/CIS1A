@@ -1,5 +1,4 @@
 /*
-    Saba Flz
     Lab 1A - Class Information
  */
 
@@ -27,7 +26,6 @@ int main()
     cout << "Project Name: Lab 1A - Class Information" << endl;
     
     // Signature
-    cout << "\nProgrammed by: Saba Flz" << endl << endl;
     
     return 0;
 }
@@ -43,8 +41,6 @@ int main()
  Thursday, December 14, 2023 from 5:00 – 7:00 pm
 
  Project Name: Lab 1A - Class Information
-
- Programmed by: Saba Flz
 
  Program ended with exit code: 0
 */
