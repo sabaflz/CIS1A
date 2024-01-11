@@ -1,5 +1,4 @@
 /*
-    Saba Flz
     Hands On #2 - Learn to Format with Input
 */
 
