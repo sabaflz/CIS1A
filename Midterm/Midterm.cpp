@@ -1,7 +1,3 @@
-/*
-  Saba Flz
-*/
-
 #include <iostream>
 #include <iomanip>
 
