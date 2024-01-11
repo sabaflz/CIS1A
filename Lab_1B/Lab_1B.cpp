@@ -1,6 +1,4 @@
 /*
-    Saba Flz
-    saba@gmail.com
     Lab 1B - Paying in Coins
  */
 
@@ -48,9 +46,6 @@ int main()
     cout << numNickels << " nickel(s)" << endl;
     cout << numPennies << " pennies" << endl;
     
-    // Signature
-    cout << "\nProgrammed by:\tSaba Feilizadeh" << endl << endl;
-    
     return 0;
 }
 
@@ -61,8 +56,6 @@ int main()
  2 dime(s)
  0 nickel(s)
  0 pennies
-
- Programmed by:    Saba Flz
 
  Program ended with exit code: 0
  */
