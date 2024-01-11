@@ -1,5 +1,4 @@
 /*
-    Saba Flz
     Lab 0 - The BASICS
  */
 
@@ -30,7 +29,7 @@ int main()
     
     //Programmer Information
     cout << "\nProgrammed by:\t";
-    cout << "Saba Flz" << endl << endl;
+    cout << "Saba" << endl << endl;
     
     return 0;
 }
@@ -42,7 +41,7 @@ int main()
  MAJOR:    Computer Science
  COMPUTER EXPERIENCE:    I have some experience coding with C++ and Web Programming Languages such as JS.
 
- Programmed by:    Saba Flz
+ Programmed by:    Saba
 
  Program ended with exit code: 0
  */
