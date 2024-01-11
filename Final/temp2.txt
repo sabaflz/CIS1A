@@ -1,0 +1,215 @@
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <string>
+#include <cmath>
+
+using namespace std;
+
+#define TAX_RATE 0.0913
+
+//----------------------------------- prototypes ------------------------------------
+int getData(string [], string [], int [], int [], int []);
+void input(double&, double&, int&);
+
+//------------------------------------- main() --------------------------------------
+int main()
+{
+int a[5] = {17, 7, -2, 45, -15};
+
+//    cout << sizeof(13/3) << endl;
+
+//------------------------------------------------
+//------------------------------------------------
+monthly_mortgage_payment = (a * i * pow(1 + i,n))/(pow(1 + i,n) - 1);
+//------------------------------------------------
+//------------------------------------------------
+
+/*
+        This program prints the number of Quarters, Dimes,
+        Nickels and Pennies you need to pay your bill :)
+    */
+// Convert dollars and cents into cents
+    totalCents = amountOwed * 100;
+    
+    // Calculate the number of quarters
+    numQuarters = totalCents / 25;
+    totalCents = totalCents % 25;
+
+    // Calculate the number of dimes
+    numDimes = totalCents / 10;
+    totalCents = totalCents % 10;
+
+    // Calculate the number of nickels
+    numNickels = totalCents / 5;
+    totalCents = totalCents % 5;
+    
+    // The remaining cents are pennies
+    numPennies = totalCents;
+
+//------------------------------------------------
+//------------------------------------------------
+
+    // Declare file variables and open the files
+    ifstream inputFile;
+    inputFile.open("Fall2023.txt");
+    
+    ofstream outputFile;
+    outputFile.open("Fill_Rates.txt");
+    
+    // Check if the files are succesfully opened/created
+    if(!inputFile)
+    {
+        cout << "No such file as Fall2023.txt!" << endl;
+        exit(100);
+    }
+    else if(!outputFile)
+    {
+        cout << "No such file as Fill_Rates.txt!" << endl;
+        exit(100);
+    }
+    
+    // Declare constants and variables
+    const int MAX = 100;  // Assume a maximum of 100 classes
+    // six parallel arrays
+    string course_CRN_number[MAX];
+ 
+    // Output the heading directly to the file from main()
+    outputFile << "CRN" << setw(20) << "Course" << setw(26) << "Fill Rate %" << endl;
+    
+    while (!inputFile.eof())
+    {
+        // Read the info from the given file (Fall2023.txt)
+        inputFile >> course_CRN_number;
+        getline(inputFile, class_name);
+        // Manage the '\n' for Mac users
+        if (class_name.substr(class_name.size()-1) == "\n" ||
+            class_name.substr(class_name.size()-1) == "\r")
+        {
+            class_name = class_name.substr(0, class_name.size()-1);
+        }
+        inputFile >> current_enrollment;
+    }
+
+    cout << "Class with the lowest fill rate:" << endl;
+    cout << fixed << setprecision(1);
+    cout << "CRN#" << setw(18) << "Course" << setw(26) << "Fill Rate %" << endl;
+
+    
+    // Close the files
+    inputFile.close();
+    outputFile.close();
+    
+    // Signature
+    signature();
+    
+    return 0;
+}
+//---------------------------------- end of main() ----------------------------------
+
+//-------------------------------- computeFillRate() --------------------------------
+double computeFillRate(int enrolled, int waitlisted, int max_enrollment)
+{
+    /*
+        Pre:
+            enrolled       : Current number of students enrolled
+            waitlisted     : Number of students on the wait-list
+            max_enrollment : Maximum number of students allowed to enroll
+     
+        Post:
+            fill_rate      : sum of current enrollment plus number of students
+                             on wait-list divided by the maximum enrollment.
+     
+        Purpose:
+            Calculate and return the value of fill rate for the given course.
+             
+    */
+    double fill_rate;
+    
+    // The fill rate should be set to -1 if the maximum enrollment is zero
+    if(max_enrollment == 0)
+    {
+        fill_rate = -1;
+    }
+    else
+    {
+        fill_rate = static_cast<double>(enrolled + waitlisted)
+                    / static_cast<double>(max_enrollment) * 100;
+    }
+    
+    return fill_rate;
+}
+//----------------------------  end of computeFillRate() ----------------------------
+
+//----------------------------------- signature() -----------------------------------
+void signature()
+{
+    cout << "\n" << setfill('-') << setw(60) << '-' << endl;
+    cout << "Lab 7 - Fill Rates" << endl << endl;
+}
+//------------------------------- end of signature() --------------------------------
+
+//------------------------------------------------
+//------------------------------------------------
+cout << left << setw(29) << "Pens" << right << numPenPackages
+                 << setw(21) << penPrice << setw(20) << pensSubtotal << endl;              // Pens Info
+
+//------------------------------------------------
+//------------------------------------------------
+
+
+cout << "\n!!! ERROR : Erroneous Input !!!\n" << endl; // Print an Error Message when the Input is Erroneous
+        exit(EXIT_FAILURE);   // Exit the program
+//------------------------------------------------
+//------------------------------------------------
+
+  switch(type)
+    {
+        case 'X':
+        {
+            base_fare = 2.00;
+            break;
+        }
+       
+        default:
+        {
+            cout << "ERROR: This is not supposed to be possible!" << endl;
+            exit(EXIT_FAILURE);
+        }
+        
+    }
+//------------------------------------------------
+//------------------------------------------------
+
+//    int x = 2; int z;
+//    z = ++x * 10;
+//    pow(x,5.0);
+//    int k = 21;
+//    int div = 6;
+//    cout << static_cast<double>(k) / div << endl;
+//    cout << x << endl;
+//    cout << z << endl;
+//    cout << sizeof("A") << endl;
+//    cout << sizeof('A') << endl;
+
+
+if (fileIn.fail()) //Always check that it exists
+{
+   cout << "No such file";
+   exit(100);
+}
+
+And
+
+int count = 0;
+
+while(!inFile.eof())
+{
+inFile>> mlsNum;
+
+fileIn >> price >> sqFt;
+
+. . .
+
+count++;
+}

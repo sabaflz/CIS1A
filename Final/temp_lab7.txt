@@ -1,0 +1,492 @@
+/*
+    Lab 7 - Fill Rates
+*/
+
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+
+// Assume a maximum of 100 classes
+#define MAX 100
+
+using namespace std;
+
+//----------------------------------- prototypes ------------------------------------
+int getData(ifstream&, string [], string [], int [], int [], int [], double []);
+double computeFillRate(int, int, int);
+void output(ofstream&, string [], string [], int [], int [], int [], double [], int);
+double averageFillRate(int [], int [], int [], double [], int);
+void findBellowMinFillRate(ofstream&, string [], string [], int [], int [], int [], double [], int);
+int search(string[], string, int);
+void sortSelectAccendingFillRates(string [], string [], int [], int [], int [], double [], int);
+void signature();
+
+//-----------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
+//------------------------------------- main() --------------------------------------
+int main()
+{
+    // This program determines fill rates and outputs reports needed by the CIS department.
+    
+    // File variables
+    ifstream inputFile;
+    ofstream outputFile;
+    
+    // Declare variables
+    // six parallel arrays
+    string course_CRN_number[MAX];
+    string class_name[MAX];         // (e.g. CIS D002.-62Z)
+    int current_enrollment[MAX];
+    int maximum_enrollment[MAX];
+    int students_on_waitlist[MAX];
+    double fill_rates[MAX];
+    
+    int num_classes_offered;
+    int location;
+    string target_crn;
+    
+    // Open the output file
+    outputFile.open("Fill_Rates.txt");
+    
+    // Check if the files are succesfully opened/created
+    if(!outputFile)
+    {
+        cout << "No such file as Fill_Rates.txt!" << endl;
+        exit(100);
+    }
+    
+    // Input data filling all six arrays and returning the actual number of classes
+    num_classes_offered = getData(inputFile, course_CRN_number, class_name, current_enrollment,
+                                  maximum_enrollment, students_on_waitlist, fill_rates);
+    
+    // Output the required info to the output file (Fill_Rates.txt)
+    output(outputFile, course_CRN_number, class_name, current_enrollment,
+           maximum_enrollment, students_on_waitlist, fill_rates, num_classes_offered);
+    
+    // Print the average fill rate to the screen
+    cout << "The average fill rate is : ";
+    cout << fixed << setprecision(1)
+         << averageFillRate(current_enrollment, students_on_waitlist, maximum_enrollment,
+                            fill_rates, num_classes_offered) << " %" << endl;
+    
+    // Prompt the user for the value that represents the lowest fill rate value acceptable
+    findBellowMinFillRate(outputFile, course_CRN_number, class_name, current_enrollment,
+                          maximum_enrollment, students_on_waitlist,
+                          fill_rates, num_classes_offered);
+    
+    // Prompt the user for the CRN number of a class
+    cout << "-------------------------------------" << endl;
+    cout << "Enter the desired CRN#: ";
+    cin >> target_crn;
+    location = search(course_CRN_number, target_crn, num_classes_offered);
+    // Print the result of the search for the user to the screen
+    if(location == -1)
+    {
+        cout << "NO SUCH CLASS!" << endl;
+    }
+    else
+    {
+        cout << "CRN:" << setw(20) << target_crn << endl;
+        cout << "Name:" << setw(19) << class_name[location] << endl;
+        cout << "Fill Rate:" << setw(14) << fill_rates[location] << endl;
+    }
+    
+    // Sort the data based on fill rates in ascending order
+    sortSelectAccendingFillRates(course_CRN_number, class_name, current_enrollment,
+               maximum_enrollment, students_on_waitlist, fill_rates, num_classes_offered);
+    
+    // Output the sorted info to the output file (Fill_Rates.txt)
+    outputFile << "------------------------------------------------------------------" << endl;
+    outputFile << "Sorted data based on fill rates in ascending order:" << endl;
+    output(outputFile, course_CRN_number, class_name, current_enrollment,
+           maximum_enrollment, students_on_waitlist, fill_rates, num_classes_offered);
+    
+    // Close the output file
+    outputFile.close();
+    
+    // Signature
+    signature();
+    
+    return 0;
+}
+//---------------------------------- end of main() ----------------------------------
+//-----------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
+
+//------------------------------------- input() -------------------------------------
+int getData(ifstream& inputFile, string crn[], string class_name[], int enrolled[],
+            int max_enrollment[], int waitlisted[], double fill_rates[])
+{
+    /*
+        Pre:
+            inputFile         : Reference to the inputFile (Fall2023.txt)
+            crn[]             : Array of CRN# of courses
+            class_name[]      : Array of the names of the courses
+            enrolled[]        : Array of current number of students enrolled
+            max_enrollment[]  : Array of maximum number of students allowed to enroll
+            waitlisted[]      : Number of students on the wait-list
+            fill_rates[]      : Array of fill rates calculated for each class
+     
+        Post:
+            num               : Number of classes that would be offered by DeAnza
+     
+        Purpose:
+            Read the data from the input file and store the info into the correspoding arrays,
+            and return the number of classes offered.
+    */
+    
+    // Open the input file
+    inputFile.open("Fall2023.txt");
+    
+    // Check if the files are succesfully opened
+    if(!inputFile)
+    {
+        cout << "No such file as Fall2023.txt!" << endl;
+        exit(100);
+    }
+    
+    // Declare variables
+    int i = 0;
+    int num = 0;
+    
+    while (i < MAX && !inputFile.eof())
+    {
+        // Read the info from the given file (Fall2023.txt)
+        inputFile >> crn[i];
+        getline(inputFile, class_name[i]);
+        // Manage the '\n' for Mac users
+        if (class_name[i].substr(class_name[i].size()-1) == "\n" ||
+            class_name[i].substr(class_name[i].size()-1) == "\r")
+        {
+            class_name[i] = class_name[i].substr(0, class_name[i].size()-1);
+        }
+        inputFile >> enrolled[i] >> max_enrollment[i] >> waitlisted[i];
+        
+        // Calculate the fill rate by calling the computeFillRate function
+        fill_rates[i] = computeFillRate(enrolled[i], waitlisted[i], max_enrollment[i]);
+        
+        num++; // number of classes
+        
+        i++;
+    }
+    
+    // Close the innput file
+    inputFile.close();
+    
+    return num;
+}
+//--------------------------------- end of input() ----------------------------------
+
+//-------------------------------- computeFillRate() --------------------------------
+double computeFillRate(int enrolled, int waitlisted, int max_enrollment)
+{
+    /*
+        Pre:
+            enrolled       : Current number of students enrolled
+            waitlisted     : Number of students on the wait-list
+            max_enrollment : Maximum number of students allowed to enroll
+     
+        Post:
+            fill_rate      : Sum of current enrollment plus number of students
+                             on wait-list divided by the maximum enrollment.
+     
+        Purpose:
+            Calculate and return the value of fill rate for the given course.
+             
+    */
+    double fill_rate;
+    
+    // The fill rate should be set to -1 if the maximum enrollment is zero
+    if(max_enrollment == 0)
+    {
+        fill_rate = -1;
+    }
+    else
+    {
+        fill_rate = static_cast<double>(enrolled + waitlisted)
+                    / static_cast<double>(max_enrollment) * 100;
+    }
+    
+    return fill_rate;
+}
+//----------------------------  end of computeFillRate() ----------------------------
+
+//----------------------------------- output() --------------------------------------
+void output(ofstream& outputFile, string crn[], string title[], int enrolled[],
+            int max_size[], int waitlisted[], double fill_rate[], int num)
+{
+    /*
+        Pre:
+            outputFile  : Reference to the outputFile (Fill_Rates.txt)
+            crn[]       : Array of CRN# of the courses read from the input file (Fall2023.txt)
+            title[]     : Array of the names of the courses read from the input file (Fall2023.txt)
+            enrolled[]  : Array of the current number of students enrolled
+            max_size[]  : Array of the maximum number of students allowed to enroll
+            waitlisted[]: Array of number of students on the wait-list
+            fill_rate[] : Array of the fill rates for the courses
+            num         : Number of classes offered
+     
+        Post:
+            Nothing
+     
+        Purpose:
+            Output the CRN#, the name of the course, number of current enrollment,
+            Maximum number of enrollment allowed, number of students on the wait-list,
+            and the fill rate percentage to the output file (Fill_Rates.txt)
+    */
+    
+    // Output the heading directly to the file from main()
+    outputFile << "------------------------------------------------------------------" << endl;
+    outputFile << "CRN" << setw(20) << "Course"
+                        << setw(15) << "Current"
+                        << setw(15) << "Max"
+                        << setw(20) << "Number on"
+                        << setw(15) << "Fill" << endl;
+    outputFile << setw(40) << "Enrollment"
+               << setw(17) << "Enrollment"
+               << setw(16)<< "Wait-list"
+               << setw(16)<< "Rate %" << endl;
+    
+    for(int i = 0; i < num; i++)
+    {
+        if(fill_rate[i] != -1)
+        {
+            // Do NOT output if the fill rate is -1
+            outputFile << fixed << setprecision(1);     // Print the numbers up to 1 decimal places
+            outputFile << crn[i] << setw(20) << title[i]
+            << right << setw(11) << enrolled[i]
+            << right << setw(17) << max_size[i]
+            << right << setw(16) << waitlisted[i]
+            << right << setw(19) << fill_rate[i] << endl;
+        }
+    }
+    
+    return;
+}
+//-------------------------------- end of output() ----------------------------------
+
+//-------------------------------- averageFillRate() --------------------------------
+double averageFillRate(int enrolled[], int waitlisted[], int max_enrollment[],
+                       double fill_rates[], int num)
+{
+    /*
+        Pre:
+            enrolled[]       : Array of the current number of students enrolled
+            waitlisted[]     : Array of number of students on the wait-list
+            max_enrollment[] : Array of the maximum number of students allowed to enroll
+            fill_rate[]      : Array of the fill rates for the courses
+            num         : Number of classes offered
+
+        Post:
+            avg      : Average of all the eligible fill rates
+     
+        Purpose:
+            Calculate and return the average value of fill rates.
+             
+    */
+    
+    // Declare variables
+    double avg = 0;
+    double sum = 0;
+    
+    for(int i = 0; i < num; i++)
+    {
+        if(fill_rates[i] != -1)
+        {
+            avg += enrolled[i] + waitlisted[i];
+            sum += max_enrollment[i];
+        }
+    }
+    
+    if(avg > 0)
+        avg = static_cast<double>(avg) / static_cast<double>(sum);
+    avg *= 100; // Percent
+    
+    return avg;
+}
+//---------------------------- end of averageFillRate() -----------------------------
+
+//----------------------------- findBellowMinFillRate() -----------------------------
+void findBellowMinFillRate(ofstream& outputFile, string crn[], string title[],
+                           int enrolled[], int max_size[], int waitlisted[],
+                           double fill_rate[], int num)
+{
+    /*
+        Pre:
+            outputFile  : Reference to the outputFile (Fill_Rates.txt)
+            crn[]       : Array of CRN# of the courses read from the input file (Fall2023.txt)
+            title[]     : Array of the names of the courses read from the input file (Fall2023.txt)
+            enrolled[]  : Array of the current number of students enrolled
+            max_size[]  : Array of the maximum number of students allowed to enroll
+            waitlisted[]: Array of number of students on the wait-list
+            fill_rate[] : Array of the fill rates for the courses
+            num         : Number of classes offered
+     
+        Post:
+            Nothing
+     
+        Purpose:
+            Find all the courses with the fill rate bellow the fill rate value requested
+            by the user and print all the course info to the output file (Fill_Rates.txt)
+    */
+    
+    // Declare variables
+    bool foundCourse = 0;
+    double min_fill_rate;
+    
+    cout << "-------------------------------------" << endl;
+    cout << "Enter the desired minimum Fill Rate: ";
+    cin >> min_fill_rate;
+    
+    // Output the heading directly to the file from main()
+    outputFile << "------------------------------------------------------------------" << endl;
+    outputFile << "All the information about each class where the fill rate is below "
+               << min_fill_rate << endl;
+    outputFile << "------------------------------------------------------------------" << endl;
+    outputFile << "CRN" << setw(20) << "Course"
+                        << setw(15) << "Current"
+                        << setw(15) << "Max"
+                        << setw(20) << "Number on"
+                        << setw(15) << "Fill" << endl;
+    outputFile << setw(40) << "Enrollment"
+               << setw(17) << "Enrollment"
+               << setw(16)<< "Wait-list"
+               << setw(16)<< "Rate %" << endl;
+    
+    for(int i = 0; i < num; i++)
+    {
+        if(fill_rate[i] < min_fill_rate && fill_rate[i] != -1)
+        {
+            outputFile << fixed << setprecision(1); // Print the numbers up to 1 decimal places
+            outputFile << crn[i] << setw(20) << title[i]
+            << right << setw(11) << enrolled[i]
+            << right << setw(17) << max_size[i]
+            << right << setw(16) << waitlisted[i]
+            << right << setw(19) << fill_rate[i] << endl;
+            
+            foundCourse = 1;
+        }
+    }
+    if(!foundCourse)
+        outputFile << "No classes with fill rate below XX" << endl;
+    
+    return;
+}
+//------------------------- end of findBellowMinFillRate() --------------------------
+
+//------------------------------------ search() -------------------------------------
+int search(string crn[], string target_crn, int num)
+{
+    /*
+        Pre:
+            crn[]       : Array of CRN# of the courses read from the input file (Fall2023.txt)
+            target_crn  : CRN# entered by the user
+            num         : Number of classes offered
+     
+        Post:
+            Index of the target CRN in the array or -1 if not found
+     
+        Purpose:
+            Find the location of the CRN# that is being searched
+    */
+    
+    // Declare variables
+    int loc;
+    
+    for(int i = 0; i < num; i++)
+    {
+        if(crn[i] == target_crn)
+        {
+            loc = i;
+            return loc;
+        }
+    }
+    return -1; // No match found
+}
+//--------------------------------- end of search() ---------------------------------
+
+//------------------------- sortSelectAccendingFillRates() --------------------------
+void sortSelectAccendingFillRates(string crn[], string title[], int enrolled[],
+                int max_size[], int waitlisted[], double fill_rate[], int num)
+{
+    /*
+        Pre:
+            crn[]       : Array of CRN# of the courses read from the input file (Fall2023.txt)
+            title[]     : Array of the names of the courses read from the input file (Fall2023.txt)
+            enrolled[]  : Array of the current number of students enrolled
+            max_size[]  : Array of the maximum number of students allowed to enroll
+            waitlisted[]: Array of number of students on the wait-list
+            fill_rate[] : Array of the fill rates for the courses
+            num         : Number of classes offered
+     
+        Post:
+            Nothing
+     
+        Purpose:
+            Sort all the courses based on their fill rates in ascending order.
+    */
+    
+    // Declare variables
+    int current;
+    int walker;
+    int smallestIndex;
+    int tempInt;
+    double tempDouble;
+    string tempString;
+    
+   
+    for (current = 0; current < num - 1; current++)
+    {
+        smallestIndex = current;
+        for (walker = current; walker < num; walker ++)
+        {
+            if (fill_rate[walker] < fill_rate[smallestIndex] && fill_rate[walker] != -1)
+                smallestIndex = walker;
+        }//for walker
+        
+        //Swap all the info about the smallest fill_rate with the current position
+        //Swap CRN
+        tempString = crn[current];
+        crn[current] = crn[smallestIndex];
+        crn[smallestIndex] = tempString;
+        
+        //Swap class anme
+        tempString = title[current];
+        title[current] = title[smallestIndex];
+        title[smallestIndex] = tempString;
+        
+        //Swap enrolled
+        tempInt = enrolled[current];
+        enrolled[current] = enrolled[smallestIndex];
+        enrolled[smallestIndex] = tempInt;
+        
+        //Swap max size
+        tempInt = max_size[current];
+        max_size[current] = max_size[smallestIndex];
+        max_size[smallestIndex] = tempInt;
+        
+        //Swap number of wait-listed
+        tempInt = waitlisted[current];
+        waitlisted[current] = waitlisted[smallestIndex];
+        waitlisted[smallestIndex] = tempInt;
+        
+        //Swap fill rate
+        tempDouble = fill_rate[current];
+        fill_rate[current] = fill_rate[smallestIndex];
+        fill_rate[smallestIndex] = tempDouble;
+    }//for current
+    
+    return;
+}
+//--------------------- end of sortSelectAccendingFillRates() -----------------------
+
+//----------------------------------- signature() -----------------------------------
+void signature()
+{
+    cout << "\n" << "-------------------------------------" << endl;
+    cout << "Programmed by:  Saba" << endl;
+    cout << "Lab 7 - Fill Rates" << endl << endl;
+}
+//------------------------------- end of signature() --------------------------------
